@@ -1,5 +1,5 @@
-
 import math
+import numpy as np 
 
 def pc_calulate_tangent_points(point, circle):
     Cx, Cy = circle[0], circle[1]                
@@ -18,7 +18,25 @@ def pc_calulate_tangent_points(point, circle):
         T1y = Cy + ad*dy + bd*dyr
         T2y = Cy + ad*dy - bd*dyr
 
-    
+
+def is_line_free_to_go(a, b, circle):
+    c = circle[0], circle[1]
+
+    u = ( np.dot([c[0]-a[0],c[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) /  (  np.dot([b[0]-a[0], b[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) 
+
+    E = [a[0] + np.clip(u,0.0,1.0) * (b[0] - a[0]) , a[1] + np.clip(u,0.0,1.0) * (b[1] - a[1])]
+
+    d = math.dist(E, c)
+
+    if d >= circle[2]: 
+        print("we good")
+        return True
+    else:
+        print("no good")    
+        return False
+        
+
+
         
 def get_circle_segment_path(circle1, point1, point2):
     
@@ -106,11 +124,11 @@ def get_outer_tangents(circle1, circle2):
     return
 
 def main():
-    point1 = (0.0,5.0)
+    point1 = (-5.0,0.0)
     point2 = (5.0,0.0)
-    circle1 = (0.0, 0.0, 5.0)
+    circle1 = (0.0, 5.1, 5.0)
     circle2 = (3.0, 12.0, 5.0)
-    get_circle_segment_path(circle1,point1, point2)\
+    is_line_free_to_go(point1, point2, circle1)
     
 if __name__ == "__main__":
     main()
