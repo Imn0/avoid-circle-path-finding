@@ -14,19 +14,43 @@ def pc_calulate_tangent_points(point, circle):
         bd = rho*math.sqrt(1-rho**2)
         T1x = Cx + ad*dx + bd*dxr
         T2x = Cx + ad*dx - bd*dxr
+
         T1y = Cy + ad*dy + bd*dyr
         T2y = Cy + ad*dy - bd*dyr
 
-        
-        print('\tT1(%g,%g),  T2(%g,%g).'%(T1x, T1y, T2x, T2y))
-        if (d/r-1) < 1E-8:
-            print('P is on the circumference')
-    else:
-        print("nope point in circle")
+    
         
 def get_circle_segment_path(circle1, point1, point2):
+    
+    #first we get angle between point1 circle center and point2
+    theta = abs(math.atan2(point2[1]-circle1[1], point2[0]-circle1[0]) - math.atan2(point1[1]-circle1[1], point1[0]-circle1[0]))
+
+    #we have four segments 
+    theta /= 4
+    
+    x, y = point1
+    ox, oy = circle1[0], circle1[1]
+
+    qx = ox + math.cos(theta) * (x - ox) + math.sin(theta) * (y - oy)
+    qy = oy + -math.sin(theta) * (x - ox) + math.cos(theta) * (y - oy)
 
     
+
+    d = circle1[2] / math.cos(theta)  
+    
+    f = d/circle1[2]
+    qx = qx * f
+    qy = qy * f
+    qx1 = qx * f
+    qy1 = qy * f
+
+    x, y = qx, qy
+    ox, oy = circle1[0], circle1[1]
+    qx2 = ox + math.cos(2*theta) * (x - ox) + math.sin(2*theta) * (y - oy)
+    qy2 = oy + -math.sin(2* theta) * (x - ox) + math.cos(2*theta) * (y - oy)
+    print(f"K=({qx2}, {qy2})")
+    print(f"F=({qx1}, {qy1})")
+
 
     return
 
@@ -82,10 +106,12 @@ def get_outer_tangents(circle1, circle2):
     return
 
 def main():
+    point1 = (0.0,5.0)
+    point2 = (5.0,0.0)
     circle1 = (0.0, 0.0, 5.0)
     circle2 = (3.0, 12.0, 5.0)
-    get_inner_tangents(circle2, circle1)
-
+    get_circle_segment_path(circle1,point1, point2)\
+    
 if __name__ == "__main__":
     main()
 
