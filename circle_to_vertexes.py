@@ -1,7 +1,29 @@
 
 import math
 
+def pc_calulate_tangent_points(point, circle):
+    Cx, Cy = circle[0], circle[1]                
+    r = circle[2]                              
+    Px, Py =  point[0], point[1]                   
+    dx, dy = Px-Cx, Py-Cy
+    dxr, dyr = -dy, dx
+    d = math.sqrt(dx**2+dy**2)
+    if d >= r :
+        rho = r/d
+        ad = rho**2
+        bd = rho*math.sqrt(1-rho**2)
+        T1x = Cx + ad*dx + bd*dxr
+        T2x = Cx + ad*dx - bd*dxr
+        T1y = Cy + ad*dy + bd*dyr
+        T2y = Cy + ad*dy - bd*dyr
 
+        
+        print('\tT1(%g,%g),  T2(%g,%g).'%(T1x, T1y, T2x, T2y))
+        if (d/r-1) < 1E-8:
+            print('P is on the circumference')
+    else:
+        print("nope point in circle")
+        
 def get_circle_segment_path(circle1, point1, point2):
 
     
