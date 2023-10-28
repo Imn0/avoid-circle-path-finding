@@ -72,6 +72,8 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
         point1 = tmp
         flip = True
 
+    print(flip)
+
     
     #first we get angle between point1 circle center and point2
     # theta = math.atan2(point2[1]-circle.center[1], point2[0]-circle.center[0]) - math.atan2(point1[1]-circle.center[1], point1[0]-circle.center[0])
@@ -80,24 +82,57 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
     theta =  math.acos( np.dot(v1,v2) / ( math.sqrt(v1[0]**2 + v1[1]**2) * math.sqrt(v2[0]**2 + v2[1]**2)) )
     #we have four segments 
     theta /= 4
+    print(theta)
+    
     x, y = point1
-    ox, oy = circle.center
+    offset_x, offset_y = circle.center
+    adjusted_x = (x - offset_x)
+    adjusted_y = (y - offset_y)
+    cos_rad = math.cos(theta)
+    sin_rad = math.sin(theta)
+    qx1 = offset_x + cos_rad * adjusted_x + sin_rad * adjusted_y
+    qy1 = offset_y + -sin_rad * adjusted_x + cos_rad * adjusted_y
 
-    #rotate to get first point 
-    qx = ox + math.cos(theta) * (x - ox) + math.sin(theta) * (y - oy)
-    qy = oy + -math.sin(theta) * (x - ox) + math.cos(theta) * (y - oy)
-
+    if math.dist( (qx1, qy1), point2) > math.dist( point1, point2):
+        theta = -theta
+        x, y = point1
+        offset_x, offset_y = circle.center
+        adjusted_x = (x - offset_x)
+        adjusted_y = (y - offset_y)
+        cos_rad = math.cos(theta)
+        sin_rad = math.sin(theta)
+        qx1 = offset_x + cos_rad * adjusted_x + sin_rad * adjusted_y
+        qy1 = offset_y + -sin_rad * adjusted_x + cos_rad * adjusted_y
     
-    f = 1 / math.cos(theta)  
-    
-    qx = qx * f
-    qy = qy * f
-    qx1 = qx
-    qy1 = qy
+    d = circle.radius / math.cos(theta)  
+    print(d)
+    f = d/circle.radius
 
-    x, y = qx, qy
-    qx2 = ox + math.cos(2*theta) * (x - ox) + math.sin(2*theta) * (y - oy)
-    qy2 = oy + -math.sin(2* theta) * (x - ox) + math.cos(2*theta) * (y - oy)
+    print(f)
+    qx1 = qx1
+    qy1 = qy1
+
+    x, y = qx1, qy1
+    offset_x, offset_y = circle.center
+    adjusted_x = (x - offset_x)
+    adjusted_y = (y - offset_y)
+    cos_rad = math.cos(2*theta)
+    sin_rad = math.sin(2*theta)
+    qx2 = offset_x + cos_rad * adjusted_x + sin_rad * adjusted_y
+    qy2 = offset_y + -sin_rad * adjusted_x + cos_rad * adjusted_y
+
+
+    qx1 = f*(qx1-circle.center[0])
+    qy1 = f*(qy1-circle.center[1])
+
+    qx2 = f*(qx2-circle.center[0])
+    qy2 = f*(qy2-circle.center[1])
+
+    qx1 = circle.center[0] + qx1
+    qy1 = circle.center[1] + qy1
+
+    qx2 = circle.center[0] + qx2
+    qy2 = circle.center[1] + qy2
 
     if flip:
         return [(qx2,qy2), (qx1,qy1)]
@@ -169,23 +204,24 @@ def test():
     B_6=(9.454284165416997, -2.7285791729150204)
     c = Circle((5.0, -5.0), 5.0)
 
-    point1 = B_3
-    point2 = B_6
+    points = [B_1, B_2, B_3, B_4, B_5, B_6]
+    # points = [ B_1, B_4]
+    lines = []
 
-    point1 = B_2
-    point2 = B_5
+    for i in range(len(points)):
+        for j in range(i+1, len(points)):
 
+            p1, p2 = get_circle_segment_path(c, points[i], points[j])
 
-    p1, p2 = get_circle_segment_path(c, point2, point1)
-
-    line1 = [point1, p1]
-    line2 = [point2, p2]
-    connection = [p1,p2]
-
-    print(p1)
-    print(p2)
-
-    draw.sex([line1, line2, connection], circles=[c])
+            line1 = [points[i], p1]
+            line2 = [points[j], p2]
+            connection = [p1,p2]
+            lines.append(line1)
+            lines.append(line2)
+            lines.append(connection)
+    
+    
+    draw.sex(lines, circles=[c])
 
 
     return
@@ -195,10 +231,12 @@ def test():
 def main():
     
     start = (0.0, 0.0)
-    end = (20.0, -10.0)
+    end = (35.0, -20.0)
     circle_1 = Circle((5.0, -5.0), 5.0)
-    circle_2 = Circle((15.0, -7.0), 3.0)
-    circles = [circle_1, circle_2]
+    circle_2 = Circle((20.0, -13.0), 4.0)
+    circle_3 = Circle((15.0, -7.0), 3.0)
+    circle_4 = Circle((30.0, -16.0), 2.0)
+    circles = [circle_1, circle_2, circle_3, circle_4]
 
     final_lines = []
 
@@ -281,6 +319,7 @@ def main():
         show_poitns(new_list)
         circle.points_on_circle = new_list
 
+    
     for circle in circles:
         new_list = []
         for i in range(len(circle.points_on_circle)):
@@ -288,19 +327,18 @@ def main():
                 p1, p2 = get_circle_segment_path(circle,circle.points_on_circle[i], circle.points_on_circle[j])
 
                 line1 = [circle.points_on_circle[i], p1]
-                if check_collisions(line1, circles):
+                line2 = [circle.points_on_circle[j], p2]
+                connect_line = [p1,p2]
+                if( check_collisions(line1, circles) and check_collisions(line2, circles) and check_collisions(connect_line, circles) ):
                     final_lines.append(line1)
                     new_list.append(line1)
-                line2 = [circle.points_on_circle[j], p2]
-                if check_collisions(line2, circles):
+                
                     new_list.append(line2)
                     final_lines.append(line2)
 
-                connect_line = [circle.points_on_circle[i],circle.points_on_circle[j]]
-                if check_collisions(connect_line, circles):
                     new_list.append(connect_line)
                     final_lines.append(connect_line)
-
+    
     draw.sex(final_lines, circles)
 
 
@@ -324,6 +362,6 @@ def show_poitns(points):
 
 
 if __name__ == "__main__":
-    test()
+    main()
 
     
