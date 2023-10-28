@@ -46,21 +46,7 @@ def is_line_free_to_go(a, b, circle: Circle):
 
 def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
 
-    #no worky
-    """
-    B_1=(0, -5.0)
-    B_2=(5.0, 0)
-    B_3=(5.0, -10.0)
-    B_4=(8.238023526890697, -8.809882365546517)
-    B_5=(6.9230769230769225, -0.38461538461538414)
-    B_6=(9.454284165416997, -2.7285791729150204)
-    c = Circle((5.0, -5.0), 5.0)
-
-    point1 = B_3
-    point2 = B_6
     
-    
-    """
 
 
     flip = False
@@ -72,7 +58,6 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
         point1 = tmp
         flip = True
 
-    print(flip)
 
     
     #first we get angle between point1 circle center and point2
@@ -82,7 +67,6 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
     theta =  math.acos( np.dot(v1,v2) / ( math.sqrt(v1[0]**2 + v1[1]**2) * math.sqrt(v2[0]**2 + v2[1]**2)) )
     #we have four segments 
     theta /= 4
-    print(theta)
     
     x, y = point1
     offset_x, offset_y = circle.center
@@ -105,10 +89,8 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
         qy1 = offset_y + -sin_rad * adjusted_x + cos_rad * adjusted_y
     
     d = circle.radius / math.cos(theta)  
-    print(d)
     f = d/circle.radius
 
-    print(f)
     qx1 = qx1
     qy1 = qy1
 
@@ -316,7 +298,6 @@ def main():
         for point in circle.points_on_circle:
             if point not in new_list:
                 new_list.append(point)
-        show_poitns(new_list)
         circle.points_on_circle = new_list
 
     
@@ -339,6 +320,7 @@ def main():
                     new_list.append(connect_line)
                     final_lines.append(connect_line)
     
+    show_answers(final_lines)
     draw.sex(final_lines, circles)
 
 
@@ -357,8 +339,6 @@ def show_poitns(points):
     for point in points:
         print(f"B_{{{count}}}={point}")
         count = count + 1
-
-
 
 
 if __name__ == "__main__":
