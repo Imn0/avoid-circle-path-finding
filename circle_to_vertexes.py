@@ -38,20 +38,48 @@ def is_line_free_to_go(a, b, circle: Circle):
 
     d = math.dist(E, circle.center)
 
-    if d >= circle.radius-0.0001: 
+    if d >= circle.radius - 0.1: 
         return True
     else:
         return False
         
 
 def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
+
+    #no worky
+    """
+    B_1=(0, -5.0)
+    B_2=(5.0, 0)
+    B_3=(5.0, -10.0)
+    B_4=(8.238023526890697, -8.809882365546517)
+    B_5=(6.9230769230769225, -0.38461538461538414)
+    B_6=(9.454284165416997, -2.7285791729150204)
+    c = Circle((5.0, -5.0), 5.0)
+
+    point1 = B_3
+    point2 = B_6
+    
+    
+    """
+
+
+    flip = False
+
+    # going on circle first point should be first then going clokcwise second pont
+    if point1[0] > point2[0]:
+        tmp = point2
+        point2 = point1
+        point1 = tmp
+        flip = True
+
     
     #first we get angle between point1 circle center and point2
-    theta = abs(math.atan2(point2[1]-circle.center[1], point2[0]-circle.center[0]) - math.atan2(point1[1]-circle.center[1], point1[0]-circle.center[0]))
-
+    # theta = math.atan2(point2[1]-circle.center[1], point2[0]-circle.center[0]) - math.atan2(point1[1]-circle.center[1], point1[0]-circle.center[0])
+    v1 = (circle.center[0] - point1[0], circle.center[1] - point1[1] )
+    v2 = (circle.center[0] - point2[0], circle.center[1] - point2[1] )
+    theta =  math.acos( np.dot(v1,v2) / ( math.sqrt(v1[0]**2 + v1[1]**2) * math.sqrt(v2[0]**2 + v2[1]**2)) )
     #we have four segments 
     theta /= 4
-    
     x, y = point1
     ox, oy = circle.center
 
@@ -71,6 +99,8 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
     qx2 = ox + math.cos(2*theta) * (x - ox) + math.sin(2*theta) * (y - oy)
     qy2 = oy + -math.sin(2* theta) * (x - ox) + math.cos(2*theta) * (y - oy)
 
+    if flip:
+        return [(qx2,qy2), (qx1,qy1)]
     return [(qx1,qy1),(qx2,qy2)]
 
 def get_inner_tangents(circle1: Circle, circle2: Circle):
@@ -131,7 +161,31 @@ def get_outer_tangents(circle1: Circle, circle2: Circle):
 
 
 def test():
-    #test circle segment
+    B_1=(0, -5.0)
+    B_2=(5.0, 0)
+    B_3=(5.0, -10.0)
+    B_4=(8.238023526890697, -8.809882365546517)
+    B_5=(6.9230769230769225, -0.38461538461538414)
+    B_6=(9.454284165416997, -2.7285791729150204)
+    c = Circle((5.0, -5.0), 5.0)
+
+    point1 = B_3
+    point2 = B_6
+
+    point1 = B_2
+    point2 = B_5
+
+
+    p1, p2 = get_circle_segment_path(c, point2, point1)
+
+    line1 = [point1, p1]
+    line2 = [point2, p2]
+    connection = [p1,p2]
+
+    print(p1)
+    print(p2)
+
+    draw.sex([line1, line2, connection], circles=[c])
 
 
     return
@@ -201,29 +255,34 @@ def main():
             if check_collisions(inner_tangent1, circles):
                 final_lines.append(inner_tangent1)
                 circles[i].points_on_circle.append(inner_tangent1[0])
+                circles[j].points_on_circle.append(inner_tangent1[1])
 
             if check_collisions(outer_tangent1, circles):
                 final_lines.append(outer_tangent1)
                 circles[i].points_on_circle.append(outer_tangent1[0])
+                circles[j].points_on_circle.append(outer_tangent1[1])
             
             if check_collisions(inner_tangent2, circles):
                 final_lines.append(inner_tangent2)
+                circles[i].points_on_circle.append(inner_tangent2[0])
                 circles[j].points_on_circle.append(inner_tangent2[1])
             
             if check_collisions(outer_tangent2, circles):
                 final_lines.append(outer_tangent2)
+                circles[i].points_on_circle.append(outer_tangent2[0])
                 circles[j].points_on_circle.append(outer_tangent2[1])
 
 
-    # for circle in circles:
-    #     new_list = []
-    #     for point in circle.points_on_circle:
-    #         if point not in new_list:
-    #             new_list.append(point)
-    #     circle.points_on_circle = new_list
-
-    # add checking for colisons
     for circle in circles:
+        new_list = []
+        for point in circle.points_on_circle:
+            if point not in new_list:
+                new_list.append(point)
+        show_poitns(new_list)
+        circle.points_on_circle = new_list
+
+    for circle in circles:
+        new_list = []
         for i in range(len(circle.points_on_circle)):
             for j in range(i+1, len(circle.points_on_circle)):
                 p1, p2 = get_circle_segment_path(circle,circle.points_on_circle[i], circle.points_on_circle[j])
@@ -231,17 +290,18 @@ def main():
                 line1 = [circle.points_on_circle[i], p1]
                 if check_collisions(line1, circles):
                     final_lines.append(line1)
-
+                    new_list.append(line1)
                 line2 = [circle.points_on_circle[j], p2]
                 if check_collisions(line2, circles):
+                    new_list.append(line2)
                     final_lines.append(line2)
 
                 connect_line = [circle.points_on_circle[i],circle.points_on_circle[j]]
                 if check_collisions(connect_line, circles):
+                    new_list.append(connect_line)
                     final_lines.append(connect_line)
 
-    show_answers(final_lines)
-    draw.sex(final_lines)
+    draw.sex(final_lines, circles)
 
 
 
@@ -254,9 +314,16 @@ def show_answers(final_lines):
         print(f"a_{{{count}}}=Segment(A_{count}, B_{count})")
         count = count + 1
 
+def show_poitns(points):
+    count = 1
+    for point in points:
+        print(f"B_{{{count}}}={point}")
+        count = count + 1
+
+
 
 
 if __name__ == "__main__":
-    main()
+    test()
 
     
