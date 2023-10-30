@@ -275,30 +275,32 @@ def stuff(start, end, circles:[Circle]):
 
     for i in range(len(circles)):
         for j in range(i+1, len(circles)):
-            # print(get_outer_tangents(circles[i], circles[j]))
-            outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
-            # print( get_inner_tangents(circles[i], circles[j]) )
-            inner_tangent1, inner_tangent2 = get_inner_tangents(circles[i], circles[j])
-            if check_collisions(inner_tangent1, circles):
-                final_lines.append(inner_tangent1)
-                circles[i].points_on_circle.append(inner_tangent1[0])
-                circles[j].points_on_circle.append(inner_tangent1[1])
+            try:
+                inner_tangent1, inner_tangent2 = get_inner_tangents(circles[i], circles[j])
+                if check_collisions(inner_tangent1, circles):
+                    final_lines.append(inner_tangent1)
+                    circles[i].points_on_circle.append(inner_tangent1[0])
+                    circles[j].points_on_circle.append(inner_tangent1[1])
+                if check_collisions(inner_tangent2, circles):
+                    final_lines.append(inner_tangent2)
+                    circles[i].points_on_circle.append(inner_tangent2[0])
+                    circles[j].points_on_circle.append(inner_tangent2[1])
+            except:
+                print("no inner tangent")
 
-            if check_collisions(outer_tangent1, circles):
-                final_lines.append(outer_tangent1)
-                circles[i].points_on_circle.append(outer_tangent1[0])
-                circles[j].points_on_circle.append(outer_tangent1[1])
-            
-            if check_collisions(inner_tangent2, circles):
-                final_lines.append(inner_tangent2)
-                circles[i].points_on_circle.append(inner_tangent2[0])
-                circles[j].points_on_circle.append(inner_tangent2[1])
-            
-            if check_collisions(outer_tangent2, circles):
-                final_lines.append(outer_tangent2)
-                circles[i].points_on_circle.append(outer_tangent2[0])
-                circles[j].points_on_circle.append(outer_tangent2[1])
-
+            try:
+                outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
+                if check_collisions(outer_tangent1, circles):
+                    final_lines.append(outer_tangent1)
+                    circles[i].points_on_circle.append(outer_tangent1[0])
+                    circles[j].points_on_circle.append(outer_tangent1[1])
+                
+                if check_collisions(outer_tangent2, circles):
+                    final_lines.append(outer_tangent2)
+                    circles[i].points_on_circle.append(outer_tangent2[0])
+                    circles[j].points_on_circle.append(outer_tangent2[1])
+            except:
+                print("no inner tangent")
 
     for circle in circles:
         new_list = []
@@ -354,16 +356,18 @@ def are_floats_the_same(x:float, a:float):
         return True
     return False
 
-def main():
+def main(start, end, circles):
 
     
-    start = (0.0, 0.0)
-    end = (35.0, -20.0)
-    circle_1 = Circle((5.0, -5.0), 5.0)
-    circle_2 = Circle((20.0, -13.0), 4.0)
-    circle_3 = Circle((15.0, -7.0), 3.0)
-    circle_4 = Circle((30.0, -16.0), 2.0)
-    circles = [circle_1, circle_2, circle_3, circle_4]
+    # start = (0.0, 0.0)
+    # end = (35.0, -20.0)
+    # circle_1 = Circle((5.0, -5.0), 5.0)
+    # circle_2 = Circle((20.0, -13.0), 4.0)
+    # circle_3 = Circle((15.0, -7.0), 3.0)
+    # circle_4 = Circle((30.0, -16.0), 2.0)
+    # circle_5 = Circle((31.0, -16.0), 2.0)
+    # circle_6 = Circle((29.0, -16.0), 1.0)
+    # circles = [circle_1, circle_2, circle_3, circle_4, circle_5, circle_6]
 
     
     lines = stuff(start, end, circles)
@@ -448,7 +452,7 @@ def main():
     print("Shortest Distance:", shortest_distance)
 
     draw.draw(final_lines, circles)
-
+    return shortest_path
         
 
 
