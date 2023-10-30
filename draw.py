@@ -23,8 +23,11 @@ def draw(final_lines, circles):
                 if event.type == pg.QUIT:
                     pg.quit()
             #circle_1 = Circle((5.0, -5.0), 5.0)
-            pg.draw.circle(screen, pg.Color("black"), (5.0*20+200, -5.0*-20+200), 5.0*20, width=1)
+            # pg.draw.circle(screen, pg.Color("black"), (5.0*20+200, -5.0*-20+200), 5.0*20, width=1)
             
+            for cirlce in circles:
+                pg.draw.circle(screen, pg.Color("black"), (cirlce.center[0]*20+200, cirlce.center[1]*-20+200), cirlce.radius*20, width=1)
+
             # Refreshing screen, otherwise no changes will occur
             pg.display.update()
         except:

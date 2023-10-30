@@ -2,6 +2,10 @@ import math
 import numpy as np 
 from circle import Circle
 import draw
+from graph import Graph
+import graph
+from node import Node
+
 
 def pc_calulate_tangent_points(point, circle: Circle):
     Cx, Cy = circle.center[0], circle.center[1]                
@@ -210,16 +214,19 @@ def test():
 
 
 
-def stuff(start, end, circles):
+def stuff(start, end, circles:[Circle]):
     
-    start = (0.0, 0.0)
-    end = (35.0, -20.0)
-    circle_1 = Circle((5.0, -5.0), 5.0)
-    circle_2 = Circle((20.0, -13.0), 4.0)
-    circle_3 = Circle((15.0, -7.0), 3.0)
-    circle_4 = Circle((30.0, -16.0), 2.0)
-    circles = [circle_1, circle_2, circle_3, circle_4]
+    # tart = (0.0, 0.0)
+    # end = (35.0, -20.0)
+    # circle_1 = Circle((5.0, -5.0), 5.0)
+    # circle_2 = Circle((20.0, -13.0), 4.0)
+    # circle_3 = Circle((15.0, -7.0), 3.0)
+    # circle_4 = Circle((30.0, -16.0), 2.0)
+    # circle_5 = Circle((20.0, -16.0), 2.0)
+    # circle_6 = Circle((21.0, -14.0), 6.0)
+    # circles = [circle_1, circle_2, circle_3, circle_4,circle_5,circle_6]
 
+    print(circles)
     final_lines = []
 
     # check if we can go directly
@@ -320,7 +327,7 @@ def stuff(start, end, circles):
                     new_list.append(connect_line)
                     final_lines.append(connect_line)
     
-    show_answers(final_lines)
+    # show_answers(final_lines)
     draw.draw(final_lines, circles)
     return final_lines
 
@@ -349,7 +356,6 @@ def are_floats_the_same(x:float, a:float):
 
 def main():
 
-    #TODO implement graph
     
     start = (0.0, 0.0)
     end = (35.0, -20.0)
@@ -376,16 +382,75 @@ def main():
 
             if are_floats_the_same(x, point1[0]) and are_floats_the_same(y, point1[1]):
                 point1_index = i
+        if point1_index == -1:
+            points.append(point1)
+            point1_index = len(points) -1
+
+        for i in range(len(points)):
+            x = points[i][0]
+            y = points[i][1]
             if are_floats_the_same(x, point2[0]) and are_floats_the_same(y, point2[1]):
                 point2_index = i
 
-        if point1_index == -1:
-            points.append(point1)
-        
         if point2_index == -1:
             points.append(point2)
+            point2_index = len(points) -1
 
-    print(points)
+    g = Graph(len(lines))
+
+    for line in lines:
+        point1 = line[0]
+        point2 = line[1]
+        
+        point1_index = -1
+        point2_index = -1
+
+        for i in range(len(points)):
+            x = points[i][0]
+            y = points[i][1]
+
+            if are_floats_the_same(x, point1[0]) and are_floats_the_same(y, point1[1]):
+                point1_index = i
+
+            if are_floats_the_same(x, point2[0]) and are_floats_the_same(y, point2[1]):
+                point2_index = i
+
+        if point1_index == -1 or point2_index == -1:
+            print("whoosp, graph thing")
+            return
+        
+        
+        node1 = Node(point1[0], point1[1], point1_index)
+        node2 = Node(point2[0], point2[1], point2_index)
+        cost = math.dist(point1,point2)
+
+        g.add_edge(node1, node2, cost)
+
+
+    start_index = 0
+    end_index = 0
+    for i in range(len(points)):
+        if are_floats_the_same(start[0], points[i][0]) and are_floats_the_same(start[1], points[i][1]):
+            start_index = i
+    
+    for i in range(len(points)):
+        if are_floats_the_same(end[0], points[i][0]) and are_floats_the_same(end[1], points[i][1]):
+            end_index = i
+
+    # print(points[0])
+
+
+    shortest_path, shortest_distance = g.dijkstra(start_index,end_index)
+    print("Shortest Path:", shortest_path)
+    final_lines = []
+    for i in range(1,len(shortest_path)):
+        final_lines.append(  [(points[shortest_path[i]][0],points[shortest_path[i]][1]),(points[shortest_path[i-1]][0],points[shortest_path[i-1]][1])]  )
+    print("Shortest Distance:", shortest_distance)
+
+    draw.draw(final_lines, circles)
+
+        
+
 
 
 
