@@ -235,6 +235,8 @@ def stuff(start, end, circles:[Circle]):
         if not is_line_free_to_go(start, end, circle):
             can_do = False
     print(can_do)
+    if can_do:
+        return [(start, end)]
 
     for circle in circles:
         tangent_end_points = pc_calulate_tangent_points(start, circle)
@@ -356,18 +358,12 @@ def are_floats_the_same(x:float, a:float):
         return True
     return False
 
+
+
 def main(start, end, circles):
 
     
-    # start = (0.0, 0.0)
-    # end = (35.0, -20.0)
-    # circle_1 = Circle((5.0, -5.0), 5.0)
-    # circle_2 = Circle((20.0, -13.0), 4.0)
-    # circle_3 = Circle((15.0, -7.0), 3.0)
-    # circle_4 = Circle((30.0, -16.0), 2.0)
-    # circle_5 = Circle((31.0, -16.0), 2.0)
-    # circle_6 = Circle((29.0, -16.0), 1.0)
-    # circles = [circle_1, circle_2, circle_3, circle_4, circle_5, circle_6]
+   
 
     
     lines = stuff(start, end, circles)
@@ -460,6 +456,14 @@ def main(start, end, circles):
 
 
 if __name__ == "__main__":
-    main()
-
-    
+    start = (0.0, 0.0)
+    end = (35.0, -20.0)
+    circle_1 = Circle((5.0, -5.0), 5.0)
+    circle_2 = Circle((20.0, -13.0), 4.0)
+    circle_3 = Circle((15.0, -7.0), 3.0)
+    circle_4 = Circle((30.0, -16.0), 2.0)
+    circle_5 = Circle((31.0, -16.0), 2.0)
+    circle_6 = Circle((29.0, -16.0), 1.0)
+    # circles = [circle_1, circle_2, circle_3, circle_4, circle_5, circle_6]
+    circles = []
+    main(start, end, circles)
