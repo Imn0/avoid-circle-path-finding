@@ -203,14 +203,14 @@ def test():
             lines.append(connection)
     
     
-    draw.sex(lines, circles=[c])
+    draw.draw(lines, circles=[c])
 
 
     return
 
 
 
-def main():
+def stuff(start, end, circles):
     
     start = (0.0, 0.0)
     end = (35.0, -20.0)
@@ -321,7 +321,8 @@ def main():
                     final_lines.append(connect_line)
     
     show_answers(final_lines)
-    draw.sex(final_lines, circles)
+    draw.draw(final_lines, circles)
+    return final_lines
 
 
 
@@ -339,6 +340,54 @@ def show_poitns(points):
     for point in points:
         print(f"B_{{{count}}}={point}")
         count = count + 1
+
+
+def are_floats_the_same(x:float, a:float):
+    if abs(x-a) < 0.01:
+        return True
+    return False
+
+def main():
+
+    #TODO implement graph
+    
+    start = (0.0, 0.0)
+    end = (35.0, -20.0)
+    circle_1 = Circle((5.0, -5.0), 5.0)
+    circle_2 = Circle((20.0, -13.0), 4.0)
+    circle_3 = Circle((15.0, -7.0), 3.0)
+    circle_4 = Circle((30.0, -16.0), 2.0)
+    circles = [circle_1, circle_2, circle_3, circle_4]
+
+    
+    lines = stuff(start, end, circles)
+    points = []
+
+    for line in lines:
+        point1 = line[0]
+        point2 = line[1]
+        
+        point1_index = -1
+        point2_index = -1
+
+        for i in range(len(points)):
+            x = points[i][0]
+            y = points[i][1]
+
+            if are_floats_the_same(x, point1[0]) and are_floats_the_same(y, point1[1]):
+                point1_index = i
+            if are_floats_the_same(x, point2[0]) and are_floats_the_same(y, point2[1]):
+                point2_index = i
+
+        if point1_index == -1:
+            points.append(point1)
+        
+        if point2_index == -1:
+            points.append(point2)
+
+    print(points)
+
+
 
 
 if __name__ == "__main__":
