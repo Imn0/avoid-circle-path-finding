@@ -14,8 +14,8 @@ def draw(final_lines, circles):
                 start, end = line
 
 
-                start = (start[0] * 20 + 200,   start[1] * -20 +200)
-                end = (end[0] * 20+200, end[1] * -20 + 200)
+                start = (start[0] * 2 + 200,   start[1] * -2 +200)
+                end = (end[0] * 2+200, end[1] * -2 + 200)
 
                 pg.draw.line(screen, pg.Color("red"), start, end, 5)
 
@@ -26,7 +26,7 @@ def draw(final_lines, circles):
             # pg.draw.circle(screen, pg.Color("black"), (5.0*20+200, -5.0*-20+200), 5.0*20, width=1)
             
             for cirlce in circles:
-                pg.draw.circle(screen, pg.Color("black"), (cirlce.center[0]*20+200, cirlce.center[1]*-20+200), cirlce.radius*20, width=1)
+                pg.draw.circle(screen, pg.Color("black"), (cirlce.center[0]*2+200, cirlce.center[1]*-2+200), cirlce.radius*2, width=1)
 
             # Refreshing screen, otherwise no changes will occur
             pg.display.update()

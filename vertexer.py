@@ -68,7 +68,11 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
     # theta = math.atan2(point2[1]-circle.center[1], point2[0]-circle.center[0]) - math.atan2(point1[1]-circle.center[1], point1[0]-circle.center[0])
     v1 = (circle.center[0] - point1[0], circle.center[1] - point1[1] )
     v2 = (circle.center[0] - point2[0], circle.center[1] - point2[1] )
-    theta =  math.acos( np.dot(v1,v2) / ( math.sqrt(v1[0]**2 + v1[1]**2) * math.sqrt(v2[0]**2 + v2[1]**2)) )
+    try:
+        theta =  math.acos( np.dot(v1,v2) / ( math.sqrt(v1[0]**2 + v1[1]**2) * math.sqrt(v2[0]**2 + v2[1]**2)) )
+    except:
+        #angle is 0
+        return
     #we have four segments 
     theta /= 4
     
@@ -258,6 +262,10 @@ def stuff(start, end, circles:[Circle]):
 
     for circle in circles:
         tangent_end_points = pc_calulate_tangent_points(end, circle)
+        try:
+            a,b = tangent_end_points
+        except:
+            continue
         tg1 = True
         tg2 = True
         for c in circles:
@@ -316,8 +324,12 @@ def stuff(start, end, circles:[Circle]):
         new_list = []
         for i in range(len(circle.points_on_circle)):
             for j in range(i+1, len(circle.points_on_circle)):
-                p1, p2 = get_circle_segment_path(circle,circle.points_on_circle[i], circle.points_on_circle[j])
-
+                try:
+                    p1, p2 = get_circle_segment_path(circle,circle.points_on_circle[i], circle.points_on_circle[j])
+                except:
+                    # we dint get a valid segment, prob angle was 0 
+                    # geometry 
+                    continue
                 line1 = [circle.points_on_circle[i], p1]
                 line2 = [circle.points_on_circle[j], p2]
                 connect_line = [p1,p2]
@@ -332,8 +344,10 @@ def stuff(start, end, circles:[Circle]):
                     final_lines.append(connect_line)
     
     # show_answers(final_lines)
-    draw.draw(final_lines, circles)
+    # draw.draw(final_lines, circles)
     return final_lines
+
+
 
 
 
@@ -361,10 +375,6 @@ def are_floats_the_same(x:float, a:float):
 
 
 def main(start, end, circles):
-
-    
-   
-
     
     lines = stuff(start, end, circles)
     points = []
@@ -396,7 +406,7 @@ def main(start, end, circles):
             points.append(point2)
             point2_index = len(points) -1
 
-    g = Graph(len(lines))
+    g = Graph(len(points)) 
 
     for line in lines:
         point1 = line[0]
@@ -423,7 +433,6 @@ def main(start, end, circles):
         node1 = Node(point1[0], point1[1], point1_index)
         node2 = Node(point2[0], point2[1], point2_index)
         cost = math.dist(point1,point2)
-
         g.add_edge(node1, node2, cost)
 
 
@@ -447,8 +456,12 @@ def main(start, end, circles):
         final_lines.append(  [(points[shortest_path[i]][0],points[shortest_path[i]][1]),(points[shortest_path[i-1]][0],points[shortest_path[i-1]][1])]  )
     print("Shortest Distance:", shortest_distance)
 
-    draw.draw(final_lines, circles)
-    return shortest_path
+    # draw.draw(final_lines, circles)
+
+    final_points = []
+    for i in range(len(shortest_path)):
+        final_points.append(  (points[shortest_path[i]][0],points[shortest_path[i]][1]) )
+    return final_points
         
 
 
@@ -456,14 +469,16 @@ def main(start, end, circles):
 
 
 if __name__ == "__main__":
-    start = (0.0, 0.0)
-    end = (35.0, -20.0)
-    circle_1 = Circle((5.0, -5.0), 5.0)
-    circle_2 = Circle((20.0, -13.0), 4.0)
-    circle_3 = Circle((15.0, -7.0), 3.0)
-    circle_4 = Circle((30.0, -16.0), 2.0)
-    circle_5 = Circle((31.0, -16.0), 2.0)
-    circle_6 = Circle((29.0, -16.0), 1.0)
+    start = (0, 0.0)
+    end = (1000.0, 0.0)
+
+
+    circle_1 = Circle((500.0, 0.0), 120.0)
+    circle_2 = Circle((200.0, -130.0), 40.0)
+    circle_3 = Circle((150.0, -70.0), 30.0)
+    circle_4 = Circle((300.0, -160.0), 20.0)
+    circle_5 = Circle((301.0, -160.0), 20.0)
+    circle_6 = Circle((290.0, -160.0), 10.0)
     # circles = [circle_1, circle_2, circle_3, circle_4, circle_5, circle_6]
-    circles = []
+    circles = [circle_1]
     main(start, end, circles)
