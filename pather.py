@@ -12,6 +12,7 @@ pos_y = 0
 pos_thread_lock = threading.Lock()
 
 def msg_consumer(master: mavutil.mavlink_connection):
+
     print("msg consumer started")
     global pos_thread_lock
     global pos_x
@@ -19,11 +20,6 @@ def msg_consumer(master: mavutil.mavlink_connection):
     x_pattern = r'x\s*:\s*([-+]?\d*\.\d+)'
     y_pattern = r'y\s*:\s*([-+]?\d*\.\d+)'
 
-    # Use re.search to find the 'x' and 'y' values in the message
-    
-
-# Extract the values if matches are found
-    
 
     while True:
         msg = master.recv_match(
@@ -64,7 +60,9 @@ def go_to_xy(x: float, y:float, master: mavutil.mavlink_connection):
 def send_on_path(path, master: mavutil.mavlink_connection):
     for i in range(len(path)):
         go_to_xy(path[i][0], path[i][1], master)
-        
+
+
+        # keep cheking distance to destination 
         going = True
         while going:
             time.sleep(1)
@@ -74,14 +72,14 @@ def send_on_path(path, master: mavutil.mavlink_connection):
 
 def main():
 
+    # connecting to drone 
     master = mavutil.mavlink_connection('udpin:127.0.0.1:14550', autoreconnect=True, retries=10)
     master.wait_heartbeat()
 
+    # starting message consumer in order to have most up to date position
     msg_thread = threading.Thread(target=msg_consumer, args=(master,))
     msg_thread.daemon = True  # This thread will exit when the main program exits
     msg_thread.start()
-    initial_count = 0  # Initial count value
-
    
     # start_x = float(input("start x pos: "))
     # start_y = float(input("start y pos: "))
@@ -107,28 +105,32 @@ def main():
     zones = []
 
     
-
-    path = vertexer.main(start, end, zones)
-    print(f"going on a stroll {path}")
     while True:
+        # send drone on path
+        path = vertexer.find_path(start, end, zones)
+        print(f"going on a stroll {path}")
+
+
         path_thread = threading.Thread(target=send_on_path, args=(path,master,))
         path_thread.daemon = True  # This thread will exit when the main program exits
         path_thread.start()
 
+
+        # new no fly zone input
         center_x = float(input("zone center x pos: "))
         center_y = float(input("zone center y pos: "))
         radius = float(input("zone radius: "))
         zone = Circle((center_x, center_y),radius)
         zones.append(zone) 
 
+
         curr_pos = get_curr_pos(master)
+        # escape from nofly zone
         goto = escaper.weg_zur_Freiheit(curr_pos, zones)
         go_to_xy(goto[0], goto[1], master)
 
+        # new start location
         start = get_curr_pos(master)
-
-        path = vertexer.main(start, end, zones)
-        print(f"going on a stroll {path}")
 
 
 
