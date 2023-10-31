@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 
-def draw(final_lines, circles):
+def draw(final_segments, circles):
     """
     basic pygame function to display the path, doesnt always fit
     """
@@ -12,8 +12,8 @@ def draw(final_lines, circles):
 
     while True:
         try:
-            for line in final_lines:
-                start, end = line
+            for segment in final_segments:
+                start, end = segment
 
                 # move and scale a bit
                 start = (start[0] * 20 + 200,   start[1] * -20 +200)
@@ -26,7 +26,7 @@ def draw(final_lines, circles):
                     pg.quit()
             
             for cirlce in circles:
-                pg.draw.circle(screen, pg.Color("black"), (cirlce.center[0]*2+200, cirlce.center[1]*-2+200), cirlce.radius*2, width=1)
+                pg.draw.circle(screen, pg.Color("black"), (cirlce.center[0]*20+200, cirlce.center[1]*-20+200), cirlce.radius*20, width=1)
 
             pg.display.update()
         except:

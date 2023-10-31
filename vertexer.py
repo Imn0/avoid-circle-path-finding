@@ -3,13 +3,12 @@ import numpy as np
 from circle import Circle
 import draw
 from graph import Graph
-import graph
 from node import Node
 
 
 def pc_calulate_tangent_points(point, circle: Circle):
     """
-    calculates both tangent lines between point and a circle, doesnt check for collisons
+    calculates both tangent segments between point and a circle, doesnt check for collisons
     if there are no tangents returns empty list
     """
     Cx, Cy = circle.center[0], circle.center[1]                
@@ -31,18 +30,18 @@ def pc_calulate_tangent_points(point, circle: Circle):
     return []
 
 
-def check_collisions(line, circles):
+def check_collisions(segment, circles):
     """
-    checks for collisons between line and every cirle in circles
-    returns True if line is not coliding 
+    checks for collisons between segment and every cirle in circles
+    returns True if segment is not coliding 
     """
     for circle in circles: 
-        if not is_line_free_to_go(line[0], line[1], circle):
+        if not is_segment_free_to_go(segment[0], segment[1], circle):
             return False
     return True
 
 
-def is_line_free_to_go(a, b, circle: Circle):
+def is_segment_free_to_go(a, b, circle: Circle):
     """
     checks wether segment between a and b colidees with given circle
     """
@@ -224,22 +223,22 @@ def test():
 
     points = [B_1, B_2, B_3, B_4, B_5, B_6]
     # points = [ B_1, B_4]
-    lines = []
+    segments = []
 
     for i in range(len(points)):
         for j in range(i+1, len(points)):
 
             p1, p2 = get_circle_segment_path(c, points[i], points[j])
 
-            line1 = [points[i], p1]
-            line2 = [points[j], p2]
+            segment1 = [points[i], p1]
+            segment2 = [points[j], p2]
             connection = [p1,p2]
-            lines.append(line1)
-            lines.append(line2)
-            lines.append(connection)
+            segments.append(segment1)
+            segments.append(segment2)
+            segments.append(connection)
     
     
-    draw.draw(lines, circles=[c])
+    draw.draw(segments, circles=[c])
 
 
     return
@@ -249,12 +248,12 @@ def test():
 def vertexify(start, end, circles:[Circle], draw_answers=False):
    
     print(circles)
-    final_lines = []
+    final_segments = []
 
     # check if we can go directly
     can_do = True
     for circle in circles:
-        if not is_line_free_to_go(start, end, circle):
+        if not is_segment_free_to_go(start, end, circle):
             can_do = False
     print(can_do)
     if can_do:
@@ -271,17 +270,17 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
         tg1 = True
         tg2 = True
         for c in circles:
-            if not is_line_free_to_go(start, tangent_end_points[0], c):
+            if not is_segment_free_to_go(start, tangent_end_points[0], c):
                 tg1 = False
-            if not is_line_free_to_go(start, tangent_end_points[1], c):
+            if not is_segment_free_to_go(start, tangent_end_points[1], c):
                 tg2 = False
         
         if tg1:
-            final_lines.append([start, tangent_end_points[0]])
+            final_segments.append([start, tangent_end_points[0]])
             circle.points_on_circle.append(tangent_end_points[0])
     
         if tg2:
-            final_lines.append([start, tangent_end_points[1]])
+            final_segments.append([start, tangent_end_points[1]])
             circle.points_on_circle.append(tangent_end_points[1])
 
     #get angents between ending point and all circles
@@ -295,17 +294,17 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
         tg1 = True
         tg2 = True
         for c in circles:
-            if not is_line_free_to_go(end, tangent_end_points[0], c):
+            if not is_segment_free_to_go(end, tangent_end_points[0], c):
                 tg1 = False
-            if not is_line_free_to_go(end, tangent_end_points[1], c):
+            if not is_segment_free_to_go(end, tangent_end_points[1], c):
                 tg2 = False
         
         if tg1:
-            final_lines.append([end, tangent_end_points[0]])
+            final_segments.append([end, tangent_end_points[0]])
             circle.points_on_circle.append(tangent_end_points[0])
     
         if tg2:
-            final_lines.append([end, tangent_end_points[1]])
+            final_segments.append([end, tangent_end_points[1]])
             circle.points_on_circle.append(tangent_end_points[1])
 
 
@@ -315,11 +314,11 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
             try:
                 inner_tangent1, inner_tangent2 = get_inner_tangents(circles[i], circles[j])
                 if check_collisions(inner_tangent1, circles):
-                    final_lines.append(inner_tangent1)
+                    final_segments.append(inner_tangent1)
                     circles[i].points_on_circle.append(inner_tangent1[0])
                     circles[j].points_on_circle.append(inner_tangent1[1])
                 if check_collisions(inner_tangent2, circles):
-                    final_lines.append(inner_tangent2)
+                    final_segments.append(inner_tangent2)
                     circles[i].points_on_circle.append(inner_tangent2[0])
                     circles[j].points_on_circle.append(inner_tangent2[1])
             except:
@@ -328,12 +327,12 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
             try:
                 outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
                 if check_collisions(outer_tangent1, circles):
-                    final_lines.append(outer_tangent1)
+                    final_segments.append(outer_tangent1)
                     circles[i].points_on_circle.append(outer_tangent1[0])
                     circles[j].points_on_circle.append(outer_tangent1[1])
                 
                 if check_collisions(outer_tangent2, circles):
-                    final_lines.append(outer_tangent2)
+                    final_segments.append(outer_tangent2)
                     circles[i].points_on_circle.append(outer_tangent2[0])
                     circles[j].points_on_circle.append(outer_tangent2[1])
             except:
@@ -358,30 +357,30 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
                     # we dint get a valid segment, prob angle was 0 
                     # geometry 
                     continue
-                line1 = [circle.points_on_circle[i], p1]
-                line2 = [circle.points_on_circle[j], p2]
-                connect_line = [p1,p2]
-                if( check_collisions(line1, circles) and check_collisions(line2, circles) and check_collisions(connect_line, circles) ):
-                    final_lines.append(line1)
-                    new_list.append(line1)
+                segment1 = [circle.points_on_circle[i], p1]
+                segment2 = [circle.points_on_circle[j], p2]
+                connect_segment = [p1,p2]
+                if( check_collisions(segment1, circles) and check_collisions(segment2, circles) and check_collisions(connect_segment, circles) ):
+                    final_segments.append(segment1)
+                    new_list.append(segment1)
                 
-                    new_list.append(line2)
-                    final_lines.append(line2)
+                    new_list.append(segment2)
+                    final_segments.append(segment2)
 
-                    new_list.append(connect_line)
-                    final_lines.append(connect_line)
+                    new_list.append(connect_segment)
+                    final_segments.append(connect_segment)
     
     if draw_answers:
-        show_answers(final_lines)
-        draw.draw(final_lines, circles)
-    return final_lines
+        show_answers(final_segments)
+        draw.draw(final_segments, circles)
+    return final_segments
 
 
 
-def show_answers(final_lines):
+def show_answers(final_segments):
     count = 1
-    for line in final_lines:
-        start, end = line
+    for segment in final_segments:
+        start, end = segment
         print(f"A_{{{count}}}={start}")
         print(f"B_{{{count}}}={end}")
         print(f"a_{{{count}}}=Segment(A_{count}, B_{count})")
@@ -403,12 +402,12 @@ def are_floats_the_same(x:float, a:float):
 
 def find_path(start, end, circles, draw_path = False):
     
-    lines = vertexify(start, end, circles)
+    segments = vertexify(start, end, circles, draw_answers=draw_path)
     points = []
 
-    for line in lines:
-        point1 = line[0]
-        point2 = line[1]
+    for segment in segments:
+        point1 = segment[0]
+        point2 = segment[1]
         
         point1_index = -1
         point2_index = -1
@@ -435,9 +434,9 @@ def find_path(start, end, circles, draw_path = False):
 
     g = Graph(len(points)) 
 
-    for line in lines:
-        point1 = line[0]
-        point2 = line[1]
+    for segment in segments:
+        point1 = segment[0]
+        point2 = segment[1]
         
         point1_index = -1
         point2_index = -1
@@ -479,11 +478,11 @@ def find_path(start, end, circles, draw_path = False):
     print("Shortest Path:", shortest_path)
     print("Shortest Distance:", shortest_distance)
     if draw_path:
-        final_lines = []
+        final_segments = []
         for i in range(1,len(shortest_path)):
-            final_lines.append(  [(points[shortest_path[i]][0],points[shortest_path[i]][1]),(points[shortest_path[i-1]][0],points[shortest_path[i-1]][1])]  )
+            final_segments.append(  [(points[shortest_path[i]][0],points[shortest_path[i]][1]),(points[shortest_path[i-1]][0],points[shortest_path[i-1]][1])]  )
 
-        draw.draw(final_lines, circles)
+        draw.draw(final_segments, circles)
 
     final_points = []
     for i in range(len(shortest_path)):
@@ -506,4 +505,4 @@ if __name__ == "__main__":
     circle_6 = Circle((21.0, -14.0), 6.0)
     circles = [circle_1, circle_2, circle_3, circle_4,circle_5,circle_6]
 
-    find_path(start, end, circles)
+    find_path(start, end, circles, draw_path=True)
