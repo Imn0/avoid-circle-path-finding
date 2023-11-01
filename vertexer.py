@@ -495,14 +495,15 @@ def find_path(start, end, circles, draw_path = False):
 
 
 if __name__ == "__main__":
-    start = (0.0, 0.0)
-    end = (35.0, -20.0)
-    circle_1 = Circle((5.0, -5.0), 5.0)
-    circle_2 = Circle((20.0, -13.0), 4.0)
-    circle_3 = Circle((15.0, -7.0), 3.0)
-    circle_4 = Circle((30.0, -16.0), 2.0)
-    circle_5 = Circle((20.0, -16.0), 2.0)
-    circle_6 = Circle((21.0, -14.0), 6.0)
-    circles = [circle_1, circle_2, circle_3, circle_4,circle_5,circle_6]
+    start = (50.0, 250.0)
+    end = (50.0, 140.0)
+
+    circle_1 = Circle((100.0, 150.0), 40.0)
+    circle_2 = Circle((50.0, 195.0), 30.0)
+    circle_3 = Circle((1.0, 200.0), 25.0)
+    circle_4 = Circle((-30.0, 150.0), 45.0)
+    circles = [circle_2]
+    circles = [circle_4, circle_3, circle_2, circle_1]
+
 
     find_path(start, end, circles, draw_path=True)

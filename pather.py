@@ -90,18 +90,26 @@ def main():
 
     # start = (start_x, start_y)
     # end = (end_x, end_y)
-    start = (0, 0.0)
+    time.sleep(2)
+    start = get_curr_pos(master)
+    print(start)
+
+    # circle_1 = Circle((50.0, -50.0), 50.0+1.0)
+    # circle_2 = Circle((200.0, -130.0), 40.0+1.0)
+    # circle_3 = Circle((150.0, -70.0), 30.0+1.0)
+    # circle_4 = Circle((300.0, -160.0), 20.0+1.0)
+    # circle_5 = Circle((301.0, -160.0), 20.0+1.0)
+    # circle_6 = Circle((290.0, -160.0), 10.0+1.0)
+
+    # start = (50.0, 250.0)
     end = (1000.0, 0.0)
 
-
-    # circle_1 = Circle((50.0, -50.0), 50.0)
-    # circle_2 = Circle((200.0, -130.0), 40.0)
-    # circle_3 = Circle((150.0, -70.0), 30.0)
-    # circle_4 = Circle((300.0, -160.0), 20.0)
-    # circle_5 = Circle((301.0, -160.0), 20.0)
-    # circle_6 = Circle((290.0, -160.0), 10.0)
-
-    # zones = [circle_1, circle_2, circle_3, circle_4, circle_5, circle_6]
+    # circle_1 = Circle((100.0, 150.0), 40.0)
+    # circle_2 = Circle((50.0, 195.0), 30.0)
+    # circle_3 = Circle((1.0, 200.0), 20.0)
+    # circle_4 = Circle((-30.0, 150.0), 45.0)
+    # # circle_5 = Circle((50.0, 100.0), 44.0)
+    # zones = [circle_4, circle_3, circle_2, circle_1]
     zones = []
 
     
@@ -122,13 +130,19 @@ def main():
         radius = float(input("zone radius: "))
         zone = Circle((center_x, center_y),radius)
         zones.append(zone) 
+        print(f"new zones = {zones}")
 
 
         curr_pos = get_curr_pos(master)
         # escape from nofly zone
         goto = escaper.weg_zur_Freiheit(curr_pos, zones)
         go_to_xy(goto[0], goto[1], master)
-
+        going = True
+        while going:
+            time.sleep(1)
+            pos = get_curr_pos(master)
+            if math.dist(pos, goto) < 1:
+                going = False
         # new start location
         start = get_curr_pos(master)
 

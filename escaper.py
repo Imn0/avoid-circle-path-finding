@@ -1,5 +1,7 @@
 from circle import Circle
 import math
+import draw
+
 
 
 def find_intersection_points(circle1, circle2):
@@ -18,7 +20,8 @@ def find_intersection_points(circle1, circle2):
     # Calculate the intersection points
     a = (r1 ** 2 - r2 ** 2 + d ** 2) / (2 * d)
     h = math.sqrt(r1 ** 2 - a ** 2)
-    
+
+    #todo: check if coordinates are OK
     x3 = x1 + a * (x2 - x1) / d
     y3 = y1 + a * (y2 - y1) / d
     
@@ -53,32 +56,35 @@ def are_floats_the_same(x:float, a:float):
 
 
 def find_a_way_out_of_cirlce(point, circle: Circle):
+    if point[0] == circle.center[0] and point[1] == circle.center[1]:
+        point = (point[0] + 0.01, point[1] + 0.01)
+    
+    d = math.dist(point, circle.center)
+
     v_x = point[0] - circle.center[0]
     v_y = point[1] - circle.center[1]
 
-    d = math.dist(point, circle.center)
-
     f = circle.radius / d
-
     v_x = v_x * f
     v_y = v_y * f
 
+    return v_x + circle.center[0], v_y + circle.center[1]
 
-
-
-def find_closest_point_im_frei(point, circles: [Circle],circle_point_is_in: Circle):
+def find_closest_point_im_frei(point, circles: [Circle],circle_point_is_in: Circle, do_draw = False):
     
     way_out = find_a_way_out_of_cirlce(point, circle_point_is_in)
-    
-    if not is_point_in_any_circle(way_out, circle):
+    if not is_point_in_any_circle(way_out, circles):
         return way_out
 
 
     intersections = find_intersections(circles)
+    intersections.append(way_out)
+    if do_draw:
+        draw.draw(points=intersections, circles=circles)
 
     for point in intersections:
         for circle in circles:
-            if math.dist(point, circle.center) < circle.radius:
+            if math.dist(point, circle.center) < circle.radius - 0.01:
                 intersections.remove(point)
 
     min_dist = float('inf')
@@ -99,8 +105,27 @@ def is_point_in_any_circle(point, circles):
             return True
     return False
 
-def weg_zur_Freiheit(point, circles: [Circle]):
+def weg_zur_Freiheit(point, circles, do_draw):
     for circle in circles:
         if math.dist(point, circle.center) < circle.radius:
-            return find_closest_point_im_frei(point, circles, circle)
+            return find_closest_point_im_frei(point, circles, circle, do_draw)
     return point 
+
+
+if __name__ == "__main__":
+    start = (60.0, 200.0)
+    end = (50.0, 140.0)
+
+    circle_1 = Circle((100.0, 150.0), 70.0)
+    circle_2 = Circle((50.0, 195.0), 30.0)
+    circle_3 = Circle((1.0, 200.0), 25.0)
+    circle_4 = Circle((-30.0, 150.0), 45.0)
+    circles = [circle_1, circle_2, circle_3, circle_4]
+
+    p = weg_zur_Freiheit(start, circles, do_draw=True)
+    line = [start, p]
+    lines = [line]
+    print(line)
+    draw.draw(lines, circles)
+
+    # find_closest_point_im_frei(point, circles, circle_1)
