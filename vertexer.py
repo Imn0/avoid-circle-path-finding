@@ -4,7 +4,7 @@ from circle import Circle
 import draw
 from graph import Graph
 from node import Node
-
+from itertools import permutations 
 
 def pc_calulate_tangent_points(point, circle: Circle):
     """
@@ -45,8 +45,18 @@ def is_segment_free_to_go(a, b, circle: Circle):
     """
     checks wether segment between a and b colidees with given circle
     """
+    if are_floats_the_same(a[0],b[0]) and are_floats_the_same(a[1],b[1]):
+        return True
 
-    u = ( np.dot([circle.center[0]-a[0],circle.center[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) /  (  np.dot([b[0]-a[0], b[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) 
+    u = ( np.dot([circle.center[0]-a[0],circle.center[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) 
+    v =  (  np.dot([b[0]-a[0], b[1]-a[1]], [b[0]-a[0], b[1]-a[1]])  ) 
+
+    if v == 0.0:
+        print("division by 0")
+        print(f"circle={circle.center} line={(a,b)}")
+        exit()
+
+    u = u / v
 
     E = [a[0] + np.clip(u,0.0,1.0) * (b[0] - a[0]) , a[1] + np.clip(u,0.0,1.0) * (b[1] - a[1])]
 
@@ -149,33 +159,28 @@ def get_circle_segment_path(circle :Circle, point1: tuple, point2: tuple):
 
 def get_inner_tangents(circle1: Circle, circle2: Circle):
     
-    try:
-        """
-        connect both centers and you will find triangles 
-        """
+    """
+    connect both centers and you will find triangles 
+    """
 
-        hypotenuse = math.dist(circle1.center,circle2.center)
-        short = circle1.radius + circle2.radius
+    hypotenuse = math.dist(circle1.center,circle2.center)
+    short = circle1.radius + circle2.radius
             #   relative angle                      to correct for circles not always being parallel to axis
-        theta = math.asin(short/hypotenuse) - math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
+    theta = math.asin(short/hypotenuse) - math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
 
-        t1x = circle1.center[0] + circle1.radius * math.cos(theta)
-        t1y = circle1.center[1] + circle1.radius * math.sin(theta)
+    t1x = circle1.center[0] + circle1.radius * math.cos(theta)
+    t1y = circle1.center[1] + circle1.radius * math.sin(theta)
 
-        t2x = circle2.center[0] + circle2.radius * math.cos(theta + math.pi)
-        t2y = circle2.center[1] + circle2.radius * math.sin(theta + math.pi)
+    t2x = circle2.center[0] + circle2.radius * math.cos(theta + math.pi)
+    t2y = circle2.center[1] + circle2.radius * math.sin(theta + math.pi)
         # print(f"K=({t1x},{t1y}) and F=({t2x},{t2y})")
-        theta2 = - math.asin(short/hypotenuse) + math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
-        s1x = circle1.center[0] + circle1.radius * math.cos(theta2)
-        s1y = circle1.center[1] + circle1.radius * math.sin(theta2)
+    theta2 = - math.asin(short/hypotenuse) + math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
+    s1x = circle1.center[0] + circle1.radius * math.cos(theta2)
+    s1y = circle1.center[1] + circle1.radius * math.sin(theta2)
 
-        s2x = circle2.center[0] + circle2.radius * math.cos(theta2 + math.pi)
-        s2y = circle2.center[1] + circle2.radius * math.sin(theta2 + math.pi)
-        # print(f"K=({s1x},{s1y}) and F=({s2x},{s2y})")
-    except Exception as e:
-        print(e)
-        print("inner tangent")
-        return []
+    s2x = circle2.center[0] + circle2.radius * math.cos(theta2 + math.pi)
+    s2y = circle2.center[1] + circle2.radius * math.sin(theta2 + math.pi)
+     
 
     return [ [(t1x,t1y),(t2x,t2y)], [(s1x,s1y), (s2x,s2y)] ] 
 
@@ -211,37 +216,10 @@ def get_outer_tangents(circle1: Circle, circle2: Circle):
     return [ [(t1x,t1y),(t2x,t2y)], [(s1x,s1y), (s2x,s2y)] ] 
 
 
-
-def test():
-    B_1=(0, -5.0)
-    B_2=(5.0, 0)
-    B_3=(5.0, -10.0)
-    B_4=(8.238023526890697, -8.809882365546517)
-    B_5=(6.9230769230769225, -0.38461538461538414)
-    B_6=(9.454284165416997, -2.7285791729150204)
-    c = Circle((5.0, -5.0), 5.0)
-
-    points = [B_1, B_2, B_3, B_4, B_5, B_6]
-    # points = [ B_1, B_4]
-    segments = []
-
-    for i in range(len(points)):
-        for j in range(i+1, len(points)):
-
-            p1, p2 = get_circle_segment_path(c, points[i], points[j])
-
-            segment1 = [points[i], p1]
-            segment2 = [points[j], p2]
-            connection = [p1,p2]
-            segments.append(segment1)
-            segments.append(segment2)
-            segments.append(connection)
-    
-    
-    draw.draw(segments, circles=[c])
+def go_around_path(circle1: Circle, circle2: Circle):
+    pass
 
 
-    return
 
 
 
@@ -308,16 +286,21 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
             circle.points_on_circle.append(tangent_end_points[1])
 
 
+    no_path = []
+
     # get tangents between all circles
     for i in range(len(circles)):
         for j in range(i+1, len(circles)):
+            is_path = False
             try:
                 inner_tangent1, inner_tangent2 = get_inner_tangents(circles[i], circles[j])
                 if check_collisions(inner_tangent1, circles):
+                    is_path = True
                     final_segments.append(inner_tangent1)
                     circles[i].points_on_circle.append(inner_tangent1[0])
                     circles[j].points_on_circle.append(inner_tangent1[1])
                 if check_collisions(inner_tangent2, circles):
+                    is_path = True
                     final_segments.append(inner_tangent2)
                     circles[i].points_on_circle.append(inner_tangent2[0])
                     circles[j].points_on_circle.append(inner_tangent2[1])
@@ -327,24 +310,27 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
             try:
                 outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
                 if check_collisions(outer_tangent1, circles):
+                    is_path = True
                     final_segments.append(outer_tangent1)
                     circles[i].points_on_circle.append(outer_tangent1[0])
                     circles[j].points_on_circle.append(outer_tangent1[1])
                 
+                
                 if check_collisions(outer_tangent2, circles):
+                    is_path = True
                     final_segments.append(outer_tangent2)
                     circles[i].points_on_circle.append(outer_tangent2[0])
                     circles[j].points_on_circle.append(outer_tangent2[1])
+                
             except:
-                print("no inner tangent")
+                print("no outer tangent")
+            if is_path == False and [circles[i],circles[j]] not in no_path:
+                no_path.append([circles[i],circles[j]])
 
-    # clear multiple copies of the same point
-    for circle in circles:
-        new_list = []
-        for point in circle.points_on_circle:
-            if point not in new_list:
-                new_list.append(point)
-        circle.points_on_circle = new_list
+    for i in range(len(circles)):
+        for j in range(i+1, len(circles)):
+            pass
+
 
     # get paths for points around the circle  
     for circle in circles:
@@ -371,8 +357,8 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
                     final_segments.append(connect_segment)
     
     if draw_answers:
-        show_answers(final_segments)
-        draw.draw(final_segments, circles)
+        # show_answers(final_segments)
+        draw.draw(final_segments, circles, [start, end])
     return final_segments
 
 
@@ -394,7 +380,7 @@ def show_poitns(points):
 
 
 def are_floats_the_same(x:float, a:float):
-    if abs(x-a) < 0.01:
+    if abs(x-a) < 0.1:
         return True
     return False
 
@@ -482,7 +468,7 @@ def find_path(start, end, circles, draw_path = False):
         for i in range(1,len(shortest_path)):
             final_segments.append(  [(points[shortest_path[i]][0],points[shortest_path[i]][1]),(points[shortest_path[i-1]][0],points[shortest_path[i-1]][1])]  )
 
-        draw.draw(final_segments, circles)
+        draw.draw(final_segments, circles, [start, end])
 
     final_points = []
     for i in range(len(shortest_path)):
@@ -495,15 +481,28 @@ def find_path(start, end, circles, draw_path = False):
 
 
 if __name__ == "__main__":
-    start = (50.0, 250.0)
-    end = (50.0, 140.0)
+    start = (-50.0, 200.0)
+    end = (350.0,200.0)
 
-    circle_1 = Circle((100.0, 150.0), 40.0)
-    circle_2 = Circle((50.0, 195.0), 30.0)
-    circle_3 = Circle((1.0, 200.0), 25.0)
-    circle_4 = Circle((-30.0, 150.0), 45.0)
-    circles = [circle_2]
-    circles = [circle_4, circle_3, circle_2, circle_1]
+    c1 = Circle((0.0, 250.0), 40.0)
+    c2 = Circle((50.0, 250.0), 40.0)
+    c3 = Circle((100.0, 260.0), 45.0)
+    c4 = Circle((150.0, 250.0), 45.0)
+    c5 = Circle((200.0, 250.0), 45.0)
+    c6 = Circle((250.0, 250.0), 45.0)
+    c7 = Circle((300.0, 250.0), 45.0)
+    c8 = Circle((350.0, 250.0), 45.0)
+    c9 = Circle((0.0, 150.0), 40.0)
+    c10 = Circle((50.0, 150.0), 40.0)
+    c11 = Circle((100.0, 160.0), 45.0)
+    c12 = Circle((150.0, 150.0), 45.0)
+    c13 = Circle((200.0, 150.0), 45.0)
+    c14 = Circle((250.0, 150.0), 45.0)
+    c15 = Circle((300.0, 150.0), 45.0)
+    c16 = Circle((350.0, 150.0), 45.0)
+    c17 = Circle((0.0, 200.0), 45.0)
 
-
+    circles = [c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17 ]
+    # p = permutations(circles)
+    # print(list(p)[1])
     find_path(start, end, circles, draw_path=True)

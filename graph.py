@@ -1,5 +1,6 @@
 from node import Node
 from queue import PriorityQueue
+from tqdm import tqdm
 
 class Graph:
     def __init__(self, num_of_vertices):
@@ -16,7 +17,7 @@ class Graph:
         distances[start_vertex] = 0
         visited = [False] * self.v
 
-        for _ in range(self.v):
+        for _ in tqdm(range(self.v)):
             min_distance = float('infinity')
             min_index = -1
             for i in range(self.v):

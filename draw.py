@@ -22,7 +22,7 @@ def draw(final_segments = [], circles= [], points = []):
                 pg.draw.line(screen, pg.Color("red"), start, end, 5)
 
             for point in points:
-                pg.draw.circle(screen, pg.Color("red"), (point[0]*2+200, point[1]*2+60), 10, width=3)
+                pg.draw.circle(screen, pg.Color("green"), (point[0]*2+200, point[1]*2+60), 10, width=3)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
