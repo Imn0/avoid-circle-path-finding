@@ -162,30 +162,51 @@ def get_inner_tangents(circle1: Circle, circle2: Circle):
     """
     connect both centers and you will find triangles 
     """
-
+    swap = False
+    if circle2.radius > circle1.radius:
+        t = circle1
+        circle1 = circle2
+        circle2 = t
+        swap = True
     hypotenuse = math.dist(circle1.center,circle2.center)
     short = circle1.radius + circle2.radius
+    try:
             #   relative angle                      to correct for circles not always being parallel to axis
-    theta = math.asin(short/hypotenuse) - math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
+        theta = math.asin(short/hypotenuse) - math.pi/2 
+        theta += math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
 
-    t1x = circle1.center[0] + circle1.radius * math.cos(theta)
-    t1y = circle1.center[1] + circle1.radius * math.sin(theta)
+        t1x = circle1.center[0] + circle1.radius * math.cos(theta)
+        t1y = circle1.center[1] + circle1.radius * math.sin(theta)
 
-    t2x = circle2.center[0] + circle2.radius * math.cos(theta + math.pi)
-    t2y = circle2.center[1] + circle2.radius * math.sin(theta + math.pi)
-        # print(f"K=({t1x},{t1y}) and F=({t2x},{t2y})")
-    theta2 = - math.asin(short/hypotenuse) + math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
-    s1x = circle1.center[0] + circle1.radius * math.cos(theta2)
-    s1y = circle1.center[1] + circle1.radius * math.sin(theta2)
+        t2x = circle2.center[0] + circle2.radius * math.cos(theta + math.pi)
+        t2y = circle2.center[1] + circle2.radius * math.sin(theta + math.pi)
+            # print(f"K=({t1x},{t1y}) and F=({t2x},{t2y})")
+        theta2 = - math.asin(short/hypotenuse) + math.pi/2 + math.atan2(circle2.center[1] - circle1.center[1], circle2.center[0] - circle1.center[0])
+        s1x = circle1.center[0] + circle1.radius * math.cos(theta2)
+        s1y = circle1.center[1] + circle1.radius * math.sin(theta2)
 
-    s2x = circle2.center[0] + circle2.radius * math.cos(theta2 + math.pi)
-    s2y = circle2.center[1] + circle2.radius * math.sin(theta2 + math.pi)
-     
+        s2x = circle2.center[0] + circle2.radius * math.cos(theta2 + math.pi)
+        s2y = circle2.center[1] + circle2.radius * math.sin(theta2 + math.pi)
+    except Exception as e:
+        print(e)
+        print("innter tangent")
+        return []
+
+    if swap:
+        return [  [(s1x,s1y), (s2x,s2y)], [(t1x,t1y),(t2x,t2y)] ] 
 
     return [ [(t1x,t1y),(t2x,t2y)], [(s1x,s1y), (s2x,s2y)] ] 
 
 
 def get_outer_tangents(circle1: Circle, circle2: Circle):
+    swap = False
+    if circle2.radius > circle1.radius:
+        t = circle1
+        circle1 = circle2
+        circle2 = t
+        swap = True
+    
+
     try:
         """
         pretty much same as inner tangent just different circles
@@ -213,14 +234,10 @@ def get_outer_tangents(circle1: Circle, circle2: Circle):
         print("outer tangent")
         return []
 
+    if swap:
+        return [  [(s1x,s1y), (s2x,s2y)], [(t1x,t1y),(t2x,t2y)] ] 
+
     return [ [(t1x,t1y),(t2x,t2y)], [(s1x,s1y), (s2x,s2y)] ] 
-
-
-def go_around_path(circle1: Circle, circle2: Circle):
-    pass
-
-
-
 
 
 def vertexify(start, end, circles:[Circle], draw_answers=False):
@@ -237,99 +254,65 @@ def vertexify(start, end, circles:[Circle], draw_answers=False):
     if can_do:
         return [(start, end)]
 
+    points = []
+
     #get angents between starting point and all circles
     for circle in circles:
         tangent_end_points = pc_calulate_tangent_points(start, circle)
-        try:
-            a,b = tangent_end_points
-        except:
-            #we didnt get a valid tangent
-            continue
-        tg1 = True
-        tg2 = True
-        for c in circles:
-            if not is_segment_free_to_go(start, tangent_end_points[0], c):
-                tg1 = False
-            if not is_segment_free_to_go(start, tangent_end_points[1], c):
-                tg2 = False
-        
-        if tg1:
+        if check_collisions((tangent_end_points[0], start), circles):
             final_segments.append([start, tangent_end_points[0]])
-            circle.points_on_circle.append(tangent_end_points[0])
-    
-        if tg2:
-            final_segments.append([start, tangent_end_points[1]])
-            circle.points_on_circle.append(tangent_end_points[1])
+            points.append(tangent_end_points[0])
 
-    #get angents between ending point and all circles
+        if check_collisions((tangent_end_points[1], start), circles):
+            final_segments.append([start, tangent_end_points[1]])
+            points.append(tangent_end_points[1])
+    
+   
     for circle in circles:
         tangent_end_points = pc_calulate_tangent_points(end, circle)
-        try:
-            a,b = tangent_end_points
-        except:
-            #we didnt get a valid tangent
-            continue
-        tg1 = True
-        tg2 = True
-        for c in circles:
-            if not is_segment_free_to_go(end, tangent_end_points[0], c):
-                tg1 = False
-            if not is_segment_free_to_go(end, tangent_end_points[1], c):
-                tg2 = False
-        
-        if tg1:
+        if check_collisions((tangent_end_points[0], end), circles):
             final_segments.append([end, tangent_end_points[0]])
-            circle.points_on_circle.append(tangent_end_points[0])
-    
-        if tg2:
+            points.append(tangent_end_points[0])
+
+        if check_collisions((tangent_end_points[1], end), circles):
             final_segments.append([end, tangent_end_points[1]])
-            circle.points_on_circle.append(tangent_end_points[1])
+            points.append(tangent_end_points[1])
 
 
-    no_path = []
-
-    # get tangents between all circles
     for i in range(len(circles)):
         for j in range(i+1, len(circles)):
-            is_path = False
+            outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
+            print(outer_tangent1)
+            print(outer_tangent2)
+            if check_collisions(outer_tangent1, circles):
+                final_segments.append(outer_tangent1)
+                points.append(outer_tangent1[0])
+                points.append(outer_tangent1[1])
+                
+            if check_collisions(outer_tangent2, circles):
+                final_segments.append(outer_tangent2)
+                points.append(outer_tangent2[0])
+                points.append(outer_tangent2[1])
+
             try:
                 inner_tangent1, inner_tangent2 = get_inner_tangents(circles[i], circles[j])
-                if check_collisions(inner_tangent1, circles):
-                    is_path = True
-                    final_segments.append(inner_tangent1)
-                    circles[i].points_on_circle.append(inner_tangent1[0])
-                    circles[j].points_on_circle.append(inner_tangent1[1])
-                if check_collisions(inner_tangent2, circles):
-                    is_path = True
-                    final_segments.append(inner_tangent2)
-                    circles[i].points_on_circle.append(inner_tangent2[0])
-                    circles[j].points_on_circle.append(inner_tangent2[1])
             except:
-                print("no inner tangent")
+                continue
+            if check_collisions(inner_tangent1, circles):
+                final_segments.append(inner_tangent1)
+                points.append(inner_tangent1[0])
+                points.append(inner_tangent1[1])
+            if check_collisions(inner_tangent2, circles):
+                final_segments.append(inner_tangent2)
+                points.append(inner_tangent2[0])
+                points.append(inner_tangent2[1])
+                
+            
+    for point in points:
+        for circle in circles:
+            if are_floats_the_same( math.dist(point, circle.center), circle.radius):
+                circle.points_on_circle.append(point) 
 
-            try:
-                outer_tangent1, outer_tangent2 = get_outer_tangents(circles[i], circles[j])
-                if check_collisions(outer_tangent1, circles):
-                    is_path = True
-                    final_segments.append(outer_tangent1)
-                    circles[i].points_on_circle.append(outer_tangent1[0])
-                    circles[j].points_on_circle.append(outer_tangent1[1])
-                
-                
-                if check_collisions(outer_tangent2, circles):
-                    is_path = True
-                    final_segments.append(outer_tangent2)
-                    circles[i].points_on_circle.append(outer_tangent2[0])
-                    circles[j].points_on_circle.append(outer_tangent2[1])
-                
-            except:
-                print("no outer tangent")
-            if is_path == False and [circles[i],circles[j]] not in no_path:
-                no_path.append([circles[i],circles[j]])
-
-    for i in range(len(circles)):
-        for j in range(i+1, len(circles)):
-            pass
 
 
     # get paths for points around the circle  
@@ -477,24 +460,21 @@ def find_path(start, end, circles, draw_path = False):
         
 
 
-
-
-
-if __name__ == "__main__":
+def test():
     start = (-50.0, 200.0)
-    end = (350.0,200.0)
+    end = (50.0,200.0)
 
     c1 = Circle((0.0, 250.0), 40.0)
-    c2 = Circle((50.0, 250.0), 40.0)
-    c3 = Circle((100.0, 260.0), 45.0)
+    c2 = Circle((50.0, 250.0), 30.0)
+    c3 = Circle((100.0, 260.0), 25.0)
     c4 = Circle((150.0, 250.0), 45.0)
     c5 = Circle((200.0, 250.0), 45.0)
     c6 = Circle((250.0, 250.0), 45.0)
     c7 = Circle((300.0, 250.0), 45.0)
     c8 = Circle((350.0, 250.0), 45.0)
     c9 = Circle((0.0, 150.0), 40.0)
-    c10 = Circle((50.0, 150.0), 40.0)
-    c11 = Circle((100.0, 160.0), 45.0)
+    c10 = Circle((50.0, 150.0), 30.0)
+    c11 = Circle((100.0, 120.0), 35.0)
     c12 = Circle((150.0, 150.0), 45.0)
     c13 = Circle((200.0, 150.0), 45.0)
     c14 = Circle((250.0, 150.0), 45.0)
@@ -502,7 +482,60 @@ if __name__ == "__main__":
     c16 = Circle((350.0, 150.0), 45.0)
     c17 = Circle((0.0, 200.0), 45.0)
 
+
+    # circles = [c4, c3, c2]
     circles = [c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17 ]
+    print()
+    final_segments = []
+    points = []
+    #get angents between starting point and all circles
+    for circle in circles:
+        tangent_end_points = pc_calulate_tangent_points(start, circle)
+        if check_collisions((tangent_end_points[0], start), circles):
+            final_segments.append([start, tangent_end_points[0]])
+            points.append(tangent_end_points[0])
+
+        if check_collisions((tangent_end_points[1], start), circles):
+            final_segments.append([start, tangent_end_points[1]])
+            points.append(tangent_end_points[1])
+    
+   
+    for circle in circles:
+        tangent_end_points = pc_calulate_tangent_points(end, circle)
+        if check_collisions((tangent_end_points[0], end), circles):
+            final_segments.append([end, tangent_end_points[0]])
+            points.append(tangent_end_points[0])
+
+        if check_collisions((tangent_end_points[1], end), circles):
+            final_segments.append([end, tangent_end_points[1]])
+            points.append(tangent_end_points[1])
+
+
+
+    draw.draw(final_segments,circles)
+
+if __name__ == "__main__":
+    # test()
+    # exit()
+    start = (-50.0, 200.0)
+    end = (50.0,200.0)
+
+    c1 = Circle((0.0, 250.0), 40.0)
+    c2 = Circle((50.0, 250.0), 30.0)
+    c3 = Circle((100.0, 260.0), 25.0)
+    c4 = Circle((150.0, 250.0), 45.0)
+    c5 = Circle((200.0, 250.0), 45.0)
+    c6 = Circle((250.0, 250.0), 45.0)
+    c7 = Circle((0.0, 150.0), 40.0)
+    c8 = Circle((50.0, 150.0), 30.0)
+    c9 = Circle((100.0, 120.0), 35.0)
+    c10 = Circle((150.0, 150.0), 45.0)
+    c11 = Circle((0.0, 200.0), 45.0)
+
+    # circles = [c17, c2, c3]
+    circles = [c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11]
+
+
     # p = permutations(circles)
     # print(list(p)[1])
     find_path(start, end, circles, draw_path=True)
