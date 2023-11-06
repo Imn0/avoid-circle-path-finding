@@ -4,7 +4,6 @@ from circle import Circle
 import draw
 from graph import Graph
 from node import Node
-from itertools import permutations 
 
 def pc_calulate_tangent_points(point, circle: Circle):
     """
@@ -461,8 +460,8 @@ def find_path(start, end, circles, draw_path = False):
 
 
 def test():
-    start = (-50.0, 200.0)
-    end = (50.0,200.0)
+    start = (20.0, 200.0)
+    end = (150.0,200.0)
 
     c1 = Circle((0.0, 250.0), 40.0)
     c2 = Circle((50.0, 250.0), 30.0)
@@ -517,20 +516,20 @@ def test():
 if __name__ == "__main__":
     # test()
     # exit()
-    start = (-50.0, 200.0)
-    end = (50.0,200.0)
+    start = (250.0, 200.0)
+    end = (100.0, 350.0)
 
     c1 = Circle((0.0, 250.0), 40.0)
-    c2 = Circle((50.0, 250.0), 30.0)
-    c3 = Circle((100.0, 260.0), 25.0)
-    c4 = Circle((150.0, 250.0), 45.0)
-    c5 = Circle((200.0, 250.0), 45.0)
-    c6 = Circle((250.0, 250.0), 45.0)
+    c2 = Circle((50.0, 275.0), 30.0)
+    c3 = Circle((100.0, 300.0), 35.0)
+    c4 = Circle((150.0, 340.0), 45.0)
+    c5 = Circle((200.0, 380.0), 45.0)
+    c6 = Circle((250.0, 420.0), 45.0)
     c7 = Circle((0.0, 150.0), 40.0)
-    c8 = Circle((50.0, 150.0), 30.0)
-    c9 = Circle((100.0, 120.0), 35.0)
-    c10 = Circle((150.0, 150.0), 45.0)
-    c11 = Circle((0.0, 200.0), 45.0)
+    c8 = Circle((50.0, 110.0), 30.0)
+    c9 = Circle((100.0, 80.0), 35.0)
+    c10 = Circle((150.0, 50.0), 45.0)
+    c11 = Circle((155.0, 200.0), 45.0)
 
     # circles = [c17, c2, c3]
     circles = [c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11]

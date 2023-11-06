@@ -40,8 +40,14 @@ def find_intersections(circles):
         for j in range(i+1, len(circles)):
             if do_circles_intersect(circles[i], circles[j]):
                 intersection = find_intersection_points(circles[i], circles[j])
+                tmp = circles.copy()
+                tmp.remove(circles[i])
+                tmp.remove(circles[j])
                 if intersection:
-                    intersections.extend(intersection)
+                    if not is_point_in_any_circle(intersection[0], tmp):
+                        intersections.append(intersection[0])
+                    if not is_point_in_any_circle(intersection[1], tmp):
+                        intersections.append(intersection[1])
     
     return intersections
 
@@ -78,15 +84,10 @@ def find_closest_point_im_frei(point, circles: [Circle],circle_point_is_in: Circ
 
 
     intersections = find_intersections(circles)
-    intersections.append(way_out)
+    
+
     if do_draw:
         draw.draw(points=intersections, circles=circles)
-
-    for point in intersections:
-        for circle in circles:
-            if math.dist(point, circle.center) < circle.radius - 0.01:
-                intersections.remove(point)
-
     min_dist = float('inf')
     x_out = 0
     y_out = 0
@@ -119,7 +120,7 @@ if __name__ == "__main__":
     circle_1 = Circle((100.0, 150.0), 70.0)
     circle_2 = Circle((50.0, 195.0), 30.0)
     circle_3 = Circle((1.0, 200.0), 25.0)
-    circle_4 = Circle((-30.0, 150.0), 45.0)
+    circle_4 = Circle((30.0, 150.0), 45.0)
     circles = [circle_1, circle_2, circle_3, circle_4]
 
     p = weg_zur_Freiheit(start, circles, do_draw=True)
